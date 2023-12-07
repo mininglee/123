@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Fashion Mall</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        nav {
+            background-color: #ffd700; /* 따스한 노란색 배경 */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 20px;
+        }
+
+        .main-nav, .sub-nav {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1000px;
+        }
+
+        .left-buttons, .right-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .nav-button {
+            text-decoration: none;
+            color: #333;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background-color: #e0e0e0;
+        }
+
+        .login-status {
+            margin-left: auto;
+        }
+
+        .sub-nav {
+            background-color: #000; /* 검은색 배경 */
+            padding: 10px 29px;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .sub-button {
+            text-decoration: none;
+            color: #fff;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .sub-button:hover {
+            background-color: #333;
+        }
+
+        .main-content {
+            display: flex;
+            max-width: 70%;
+            margin: 20px auto;
+        }
+
+        .image-container {
+            flex: 1;
+            margin-right: 120px;
+            margin: 80px;
+        }
+
+        .image-container img {
+            width: 100%;
+            border-radius: 5px;
+            border: 2px solid #000; /* 검은색 테두리 */
+            height: 500px;
+        
+        }
+
+        .text-container {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="main-nav">
+            <div class="left-buttons">
+                <a href="#" class="nav-button">랭킹</a>
+                <a href="#" class="nav-button">업데이트</a>
+                <a href="#" class="nav-button">코디</a>
+                <a href="#" class="nav-button">세일</a>
+                <a href="#" class="nav-button">스페셜</a>
+                <a href="#" class="nav-button">매거진</a>
+                <a href="#" class="nav-button">TV</a>
+                <a href="#" class="nav-button">이벤트</a>
+                <a href="#" class="nav-button">브랜드</a>
+            </div>
+            
+        </div>
+        <div class="sub-nav">
+            <div class="right-buttons">
+                <a href="#" class="sub-button">로그인</a>
+                <a href="#" class="sub-button">바로접속 ON</a>
+                <a href="#" class="sub-button">마이페이지</a>
+                <a href="#" class="sub-button">최근 본 상품</a>
+                <a href="#" class="sub-button">좋아요</a>
+                <a href="#" class="sub-button">장바구니</a>
+                <a href="#" class="sub-button">주문배송조회</a>
+                <a href="#" class="sub-button">고객센터</a>
+                <a href="#" class="sub-button">래플</a>
+                <a href="#" class="sub-button">브랜드 구인</a>
+                <a href="#" class="sub-button">회원가입</a>
+                <a href="#" class="sub-button">EVENT</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="main-content">
+        <div class="image-container">
+            <img src="path/to/your/image1.jpg" alt="Image 1">
+        </div>
+        <div class="image-container">
+            <img src="path/to/your/image2.jpg" alt="Image 2">
+        </div>
+    </div>
+
+
+</body>
+</html>
