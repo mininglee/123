@@ -133,11 +133,52 @@
         <div class="image-container">
             <img src="path/to/your/image1.jpg" alt="Image 1">
         </div>
-        <div class="image-container">
-            <img src="path/to/your/image2.jpg" alt="Image 2">
+        <div class="text-container">
+            <h2>Predicted Result for Image 1</h2>
+            <p id="predicted-result-1"></p>
         </div>
     </div>
 
+    <div class="main-content">
+        <div class="image-container">
+            <img src="path/to/your/image2.jpg" alt="Image 2">
+        </div>
+        <div class="text-container">
+            <h2>Predicted Result for Image 2</h2>
+            <p id="predicted-result-2"></p>
+        </div>
+    </div>
 
+    <!-- 추가된 스크립트 부분 -->
+    <script>
+        // 이미지를 업로드하고 예측 결과를 받아오는 함수
+        async function uploadAndPredict(fileInput, resultElementId) {
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            // POST 요청을 보내고 결과를 받아옴
+            const response = await fetch('http://127.0.0.1:5000/predict', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            // 결과를 HTML에 표시
+            const resultElement = document.getElementById(resultElementId);
+            resultElement.innerText = `Predicted class: ${result.class_index}, Confidence: ${result.confidence}`;
+        }
+
+        // 이미지 업로드 및 예측 호출
+        const fileInput1 = document.querySelector('#file-input-1');
+        fileInput1.addEventListener('change', () => {
+            uploadAndPredict(fileInput1, 'predicted-result-1');
+        });
+
+        const fileInput2 = document.querySelector('#file-input-2');
+        fileInput2.addEventListener('change', () => {
+            uploadAndPredict(fileInput2, 'predicted-result-2');
+        });
+    </script>
 </body>
 </html>
