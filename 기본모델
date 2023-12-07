@@ -1,0 +1,95 @@
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.applications import VGG16
+from sklearn.ensemble import VotingClassifier
+import os
+
+# 데이터 경로 설정
+train_data_dir = 'C:/Users/koung/kicpython/clothe/learning_rgb1/'
+test_data_dir = 'C:/Users/koung/kicpython/clothe/test_rgb1'
+
+# 이미지 크기 및 배치 크기 설정
+img_size = (224, 224)
+batch_size = 32
+
+# VGG16 모델 로드 (전이 학습)
+base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+
+num_classes = 11  # 클래스 개수
+
+# 모델 구축
+def build_model():
+    model = models.Sequential()
+    model.add(base_model)
+    model.add(layers.Flatten())
+    model.add(layers.Dense(256, activation='relu'))
+    model.add(layers.Dropout(0.5))
+    model.add(layers.Dense(num_classes, activation='softmax'))
+    return model
+
+# 모델 리스트 생성 및 저장
+num_models = 3
+models_directory = 'C:/Users/koung/kicpython/clothe/models/'
+
+if not os.path.exists(models_directory):
+    os.makedirs(models_directory)
+
+models_list = []
+
+for i in range(num_models):
+    model = build_model()
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    train_datagen = tf.keras.preprocessing.image.ImageDataGenerator(
+        rescale=1./255,
+        shear_range=0.2,
+        zoom_range=0.2,
+        horizontal_flip=True,
+        rotation_range=20,
+        width_shift_range=0.2,
+        height_shift_range=0.2,
+        fill_mode='nearest'
+    )
+
+    train_generator = train_datagen.flow_from_directory(
+        train_data_dir,
+        target_size=img_size,
+        batch_size=batch_size,
+        class_mode='categorical'
+    )
+
+    model.fit(train_generator, epochs=10)  # 각 모델을 학습
+    
+    model_path = os.path.join(models_directory, f'model_{i}.h5')
+    model.save(model_path)  # 각 모델 저장
+    models_list.append(model)  # 모델 리스트에 추가
+
+# 각 모델을 불러와 리스트에 저장
+loaded_models = []
+
+for i in range(num_models):
+    model_path = os.path.join(models_directory, f'model_{i}.h5')
+    loaded_model = tf.keras.models.load_model(model_path)
+    loaded_models.append(loaded_model)
+
+# 불러온 모델을 다시 앙상블 모델로 합치기
+voting_models = [(f"model{i}", model) for i, model in enumerate(loaded_models)]
+ensemble_model = VotingClassifier(estimators=voting_models, voting='soft')
+
+# 앙상블 모델 사용 예시
+# 새로운 옷 이미지에 대한 예측
+new_clothing_image_path = '/path/to/new_clothing_image.jpg'
+# 새로운 옷 이미지 로드 및 전처리 (이 부분은 실제 이미지를 불러와서 처리해야 합니다)
+new_clothing_image = tf.keras.preprocessing.image.load_img(new_clothing_image_path, target_size=img_size)
+new_clothing_image_array = tf.keras.preprocessing.image.img_to_array(new_clothing_image)
+new_clothing_image_array = new_clothing_image_array.reshape((1,) + new_clothing_image_array.shape)
+new_clothing_image_array /= 255.0
+
+new_clothing_prediction = ensemble_model.predict(new_clothing_image_array)
+predicted_class = new_clothing_prediction.argmax(axis=-1)
+
+print(f"Predicted class for new clothing: {predicted_class}")
+
+# 앙상블 모델 저장
+ensemble_model_path = 'C:/Users/koung/kicpython/clothe/models/ensemble_model.h5'
+ensemble_model.save(ensemble_model_path)
