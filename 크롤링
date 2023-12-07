@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+import os
+import requests
+import time
+from bing_image_downloader import downloader
+from urllib.parse import urlparse
+
+# 검색 항목 리스트
+clothe_items = [
+    "모델", "남자모델", "여자모델", "전신사진", "화보", "모델사진", "스웨터 모델", "니트 모델", "청바지 모델", "슬랙스 모델", "바지 모델"
+]
+
+# 이미지를 저장할 기본 디렉토리 생성(이미지 이름을 딴 폴더 자동 생성)
+base_directory_learning = 'C:/Users/koung/kicpython/clothe/learning_rgb1/image/'
+base_directory_test = 'C:/Users/koung/kicpython/clothe/test_rgb1/image/'
+os.makedirs(base_directory_learning, exist_ok=True)
+os.makedirs(base_directory_test, exist_ok=True)
+
+# 검색 항목에 대해 이미지 다운로드
+for clothe_item in clothe_items:
+    query = clothe_item
+    downloader.download(query, limit=1000, output_dir='C:/Users/koung/kicpython/clothe/learning_rgb1/image/')
+    downloader.download(query, limit=1000, output_dir='C:/Users/koung/kicpython/clothe/test_rgb1/image/')
+    
