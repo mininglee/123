@@ -1,0 +1,51 @@
+from flask import Flask, request, jsonify
+from PIL import Image
+import numpy as np
+from tensorflow.keras.models import load_model
+from tensorflow.keras.preprocessing.image import img_to_array
+
+app = Flask(__name__)
+
+# 앙상블 모델 로드
+ensemble_model_path = 'C:/Users/koung/kicpython/clothe/models/ensemble_model.h5'
+ensemble_model = load_model(ensemble_model_path)
+
+# 이미지 전처리 함수
+def preprocess_image(image):
+    # 이미지 크기 조정
+    image = image.resize((224, 224))
+
+    # 이미지를 배열로 변환
+    image_array = img_to_array(image)
+
+    # 정규화 (0에서 255 사이의 값을 0에서 1 사이로 변환)
+    image_array /= 255.0
+
+    # VGG16 모델의 입력 형식에 맞게 차원 조정
+    image_array = np.expand_dims(image_array, axis=0)
+
+    return image_array
+
+# API 엔드포인트: 이미지 업로드 및 예측
+@app.route('/predict', methods=['POST'])
+def predict():
+    # 업로드된 이미지 받아오기
+    uploaded_file = request.files['file']
+    
+    # 이미지를 텐서플로우 모델에 적합한 형식으로 변환
+    img = Image.open(uploaded_file)
+    img_array = preprocess_image(img)
+
+    # 앙상블 모델 예측
+    predictions = ensemble_model.predict(img_array)
+
+    # 예측 결과를 JSON 형태로 반환
+    result = {
+        'class_index': int(np.argmax(predictions)),
+        'confidence': float(np.max(predictions)),
+    }
+
+    return jsonify(result)
+
+if __name__ == '__main__':
+    app.run(debug=True)
