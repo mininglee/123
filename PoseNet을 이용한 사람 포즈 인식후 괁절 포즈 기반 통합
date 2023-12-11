@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoseNet Image Example</title>
+    <!-- TensorFlow.js 및 PoseNet 라이브러리 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+</head>
+<body>
+    <h1>PoseNet Image Example</h1>
+    <!-- 이미지 선택 폼 -->
+    <input type="file" accept="image/*" onchange="loadImage(event)">
+    <!-- 이미지를 보여줄 캔버스 -->
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        // 캔버스 요소 가져오기
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 이미지 로드 및 PoseNet 모델 로드
+        function loadImage(event) {
+            const input = event.target;
+            const file = input.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = function () {
+                        // 이미지를 캔버스에 그리고 PoseNet을 사용하여 포즈 인식
+                        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                        posenet.load()
+                            .then((net) => net.estimateSinglePose(canvas))
+                            .then((pose) => {
+                                // 여기에서 pose 객체를 사용하여 필요한 작업 수행
+                                console.log(pose);
+
+                                // 상의 이미지를 캔버스에 그리기
+                                const topImage = new Image();
+                                topImage.src = 'path/to/top/image.png';
+
+                                // PoseNet에서 얻은 관절 좌표를 사용하여 옷 이미지 동적으로 그리기
+                                drawClothing(pose.keypoints, topImage);
+                            })
+                            .catch((error) => {
+                                console.error('Error loading PoseNet model or estimating pose: ', error);
+                            });
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 관절 좌표를 사용하여 옷 이미지 동적으로 그리기
+        function drawClothing(keypoints, clothingImage) {
+            const ctx = canvas.getContext('2d');
+
+            // 예시: 어깨, 팔꿈치, 손목의 좌표 가져오기
+            const leftShoulder = keypoints.find(point => point.part === 'leftShoulder').position;
+            const leftElbow = keypoints.find(point => point.part === 'leftElbow').position;
+            const leftWrist = keypoints.find(point => point.part === 'leftWrist').position;
+
+            // 기울기 및 각도 계산
+            const angle = Math.atan2(leftWrist.y - leftShoulder.y, leftWrist.x - leftShoulder.x);
+            const distance = Math.sqrt((leftWrist.x - leftShoulder.x) ** 2 + (leftWrist.y - leftShoulder.y) ** 2);
+
+            // 옷 이미지 회전 및 크기 조절
+            ctx.save();
+            ctx.translate(leftShoulder.x, leftShoulder.y);
+            ctx.rotate(angle);
+            ctx.drawImage(clothingImage, -distance / 2, 0, distance, clothingImage.height);
+            ctx.restore();
+        }
+    </script>
+</body>
+</html>
