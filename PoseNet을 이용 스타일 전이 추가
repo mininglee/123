@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoseNet + Style Transfer</title>
+    <!-- TensorFlow.js 및 PoseNet, ml5.js 라이브러리 로드 -->
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/posenet"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ml5/1.0.5/ml5.min.js"></script>
+</head>
+<body>
+    <h1>PoseNet + Style Transfer</h1>
+    <!-- 이미지 선택 폼 -->
+    <input type="file" accept="image/*" onchange="loadImage(event)">
+    <!-- 이미지를 보여줄 캔버스 -->
+    <canvas id="canvas" width="640" height="480"></canvas>
+
+    <script>
+        // 캔버스 요소 가져오기
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // 이미지 로드 및 PoseNet 모델 및 Style Transfer 모델 로드
+        async function loadImage(event) {
+            const input = event.target;
+            const file = input.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function (e) {
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = async function () {
+                        // PoseNet을 사용하여 포즈 인식
+                        const pose = await estimatePose(img);
+
+                        // Style Transfer를 사용하여 이미지 스타일 전이
+                        const styledImage = await transferStyle(img, 'path/to/style/image.jpg');
+
+                        // 이미지를 캔버스에 그리기
+                        ctx.clearRect(0, 0, canvas.width, canvas.height);
+                        ctx.drawImage(styledImage, 0, 0, canvas.width, canvas.height);
+
+                        // PoseNet 결과에 따라 다른 처리 수행 가능
+                        console.log(pose);
+                    };
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // PoseNet을 사용하여 포즈 인식
+        async function estimatePose(image) {
+            const net = await posenet.load();
+            const pose = await net.estimateSinglePose(image);
+            return pose;
+        }
+
+        // Style Transfer를 사용하여 이미지 스타일 전이
+        async function transferStyle(contentImage, styleImageSrc) {
+            const style = ml5.styleTransfer(styleImageSrc, modelLoaded);
+            
+            function modelLoaded() {
+                console.log('Style Transfer Model Loaded!');
+            }
+
+            const styledImage = await new Promise(resolve => {
+                style.transfer(contentImage, result => resolve(result.src));
+            });
+
+            return styledImage;
+        }
+    </script>
+</body>
+</html>
